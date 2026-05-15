@@ -2,6 +2,49 @@ import streamlit as st
 import pandas as pd
 import os
 
+# Login system
+users_file = "users.csv"
+
+if not os.path.exists(users_file):
+    pd.DataFrame(columns=["username", "password"]).to_csv(users_file, index=False)
+
+menu = ["Login", "Signup"]
+choice_login = st.sidebar.selectbox("Account", menu)
+
+if choice_login == "Signup":
+    st.subheader("Create New Account")
+
+    new_user = st.text_input("Username")
+    new_pass = st.text_input("Password", type="password")
+
+    if st.button("Signup"):
+        users = pd.read_csv(users_file)
+
+        if new_user in users["username"].values:
+            st.error("Username already exists")
+        else:
+            new_data = pd.DataFrame([[new_user, new_pass]], columns=["username", "password"])
+            users = pd.concat([users, new_data], ignore_index=True)
+            users.to_csv(users_file, index=False)
+            st.success("Account created successfully")
+
+elif choice_login == "Login":
+    st.subheader("Login")
+
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+        users = pd.read_csv(users_file)
+
+        if ((users["username"] == username) & (users["password"] == password)).any():
+            st.success("Login successful")
+        else:
+            st.error("Invalid username or password")
+import streamlit as st
+import pandas as pd
+import os
+
 st.title("🎒 Campus Lost & Found System")
 
 menu = ["Home", "Report Lost Item", "Report Found Item", "View Lost Items", "View Found Items"]
